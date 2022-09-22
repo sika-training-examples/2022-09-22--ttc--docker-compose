@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  redis:
+    image: redis
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      start_period: 1s
+  counter:
+    build: .
+    image: reg.istry.cz/ondrej/counter
+    labels:
+      traefik.enable: true
+      traefik.frontend.rule: Host:${HOST?}
+    healthcheck:
+      test: ["CMD", "curl", "127.0.0.1"]
+      interval: 5s
+      start_period: 1s
+    depends_on:
+      redis:
+        condition: service_healthy
+volumes:
+  redis-data:
